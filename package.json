@@ -14,6 +14,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "autoprefixer": "10.4.27",
+    "classnames": "^2.5.1",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.1",
     "next": "16.2.1",
