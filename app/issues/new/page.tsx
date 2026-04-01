@@ -1,10 +1,10 @@
 'use client';
 
-import { Badge, Button, TextField } from '@radix-ui/themes';
+import { Badge, Button, Callout, TextField } from '@radix-ui/themes';
 import dynamic from 'next/dynamic';
 import 'easymde/dist/easymde.min.css';
 import type { Options } from 'easymde';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -27,6 +27,7 @@ const NewIssuePage = () => {
       spellChecker: false,
     } as Options;
   }, []);
+  const [error, setError] = useState<string | null>('');
 
   const {
     register,
@@ -36,39 +37,52 @@ const NewIssuePage = () => {
   } = useForm<NewIssuePageProps>();
 
   const onSubmit: SubmitHandler<NewIssuePageProps> = async (data) => {
-    await axios.post('/api/issues', data);
-    router.push('/issues');
+    try {
+      await axios.post('/api/issues', data);
+      router.push('/issues');
+    } catch (error) {
+      setError(
+        'An unexpected error occurred while creating the issue. Please try again.',
+      );
+    }
   };
 
   return (
-    <form className="max-w-xl space-y-3" onSubmit={handleSubmit(onSubmit)}>
-      {errors.title && <Badge color="crimson">This field is required</Badge>}
-      <TextField.Root
-        placeholder="Title"
-        radius="large"
-        {...register('title', { required: true })}
-      />
-
-      {errors.description && (
-        <Badge color="crimson">This field is required</Badge>
+    <div className="max-w-xl">
+      {error && (
+        <Callout.Root color="red" className="mb-5">
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
       )}
-      <Controller
-        name="description"
-        control={control}
-        rules={{ required: true }}
-        render={({ field }) => (
-          <SimpleMDE
-            {...field}
-            options={autofocusNoSpellcheckerOptions}
-            placeholder="Description of the issue."
-          />
-        )}
-      />
+      <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+        {errors.title && <Badge color="crimson">Title is required</Badge>}
+        <TextField.Root
+          placeholder="Title"
+          radius="large"
+          {...register('title', { required: true })}
+        />
 
-      <Button size="2" variant="soft" type="submit">
-        Submit New Issue
-      </Button>
-    </form>
+        {errors.description && (
+          <Badge color="crimson">Description is required</Badge>
+        )}
+        <Controller
+          name="description"
+          control={control}
+          rules={{ required: true }}
+          render={({ field }) => (
+            <SimpleMDE
+              {...field}
+              options={autofocusNoSpellcheckerOptions}
+              placeholder="Description of the issue."
+            />
+          )}
+        />
+
+        <Button size="2" variant="soft" type="submit">
+          Submit New Issue
+        </Button>
+      </form>
+    </div>
   );
 };
 
