@@ -14,6 +14,7 @@ interface NewIssuePageProps {
   description: string;
 }
 
+// Dynamically import the SimpleMDE component to prevent SSR issues
 const SimpleMDE = dynamic(() => import('react-simplemde-editor'), {
   ssr: false,
 });
