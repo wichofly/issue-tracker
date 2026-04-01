@@ -8,11 +8,11 @@ import { useMemo, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createIssueSchema } from '@/app/validationSchema';
+import { z } from 'zod';
 
-interface NewIssuePageProps {
-  title: string;
-  description: string;
-}
+type CreateIssueForm = z.infer<typeof createIssueSchema>;
 
 // Dynamically import the SimpleMDE component to prevent SSR issues
 const SimpleMDE = dynamic(() => import('react-simplemde-editor'), {
@@ -34,9 +34,11 @@ const NewIssuePage = () => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<NewIssuePageProps>();
+  } = useForm<CreateIssueForm>({
+    resolver: zodResolver(createIssueSchema),
+  });
 
-  const onSubmit: SubmitHandler<NewIssuePageProps> = async (data) => {
+  const onSubmit: SubmitHandler<CreateIssueForm> = async (data) => {
     try {
       await axios.post('/api/issues', data);
       router.push('/issues');
@@ -55,7 +57,7 @@ const NewIssuePage = () => {
         </Callout.Root>
       )}
       <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
-        {errors.title && <Badge color="crimson">Title is required</Badge>}
+        {errors.title && <Badge color="crimson">{errors.title.message}</Badge>}
         <TextField.Root
           placeholder="Title"
           radius="large"
@@ -63,7 +65,7 @@ const NewIssuePage = () => {
         />
 
         {errors.description && (
-          <Badge color="crimson">Description is required</Badge>
+          <Badge color="crimson">{errors.description.message}</Badge>
         )}
         <Controller
           name="description"
