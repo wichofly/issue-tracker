@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import type { Options } from 'easymde';
 import axios from 'axios';
-import { Button, Callout, TextField } from '@radix-ui/themes';
+import { Button, Callout, Spinner, TextField } from '@radix-ui/themes';
 
 import { createIssueSchema } from '@/app/validationSchema';
 import ErrorMessage from '@/app/components/ErrorMessage';
@@ -30,6 +30,7 @@ const NewIssuePage = () => {
     } as Options;
   }, []);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -42,9 +43,11 @@ const NewIssuePage = () => {
 
   const onSubmit: SubmitHandler<CreateIssueForm> = async (data) => {
     try {
+      setIsLoading(true);
       await axios.post('/api/issues', data);
       router.push('/issues');
     } catch (error) {
+      setIsLoading(false);
       setError(
         'An unexpected error occurred while creating the issue. Please try again.',
       );
@@ -80,7 +83,8 @@ const NewIssuePage = () => {
           )}
         />
 
-        <Button size="2" variant="soft" type="submit">
+        <Button size="2" variant="soft" type="submit" disabled={isLoading}>
+          {isLoading && <Spinner className="mr-2" />}
           Submit New Issue
         </Button>
       </form>
