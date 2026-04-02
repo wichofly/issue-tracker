@@ -1,16 +1,18 @@
 'use client';
 
-import { Badge, Button, Callout, TextField } from '@radix-ui/themes';
+import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import 'easymde/dist/easymde.min.css';
-import type { Options } from 'easymde';
-import { useMemo, useState } from 'react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { createIssueSchema } from '@/app/validationSchema';
 import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import type { Options } from 'easymde';
+import axios from 'axios';
+import { Button, Callout, TextField } from '@radix-ui/themes';
+
+import { createIssueSchema } from '@/app/validationSchema';
+import ErrorMessage from '@/app/components/ErrorMessage';
 
 type CreateIssueForm = z.infer<typeof createIssueSchema>;
 
@@ -27,7 +29,7 @@ const NewIssuePage = () => {
       spellChecker: false,
     } as Options;
   }, []);
-  const [error, setError] = useState<string | null>('');
+  const [error, setError] = useState<string | null>(null);
 
   const {
     register,
@@ -35,7 +37,7 @@ const NewIssuePage = () => {
     control,
     formState: { errors },
   } = useForm<CreateIssueForm>({
-    resolver: zodResolver(createIssueSchema),
+    resolver: zodResolver(createIssueSchema), // Integrate Zod validation with react-hook-form using the zodResolver
   });
 
   const onSubmit: SubmitHandler<CreateIssueForm> = async (data) => {
@@ -57,16 +59,14 @@ const NewIssuePage = () => {
         </Callout.Root>
       )}
       <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
-        {errors.title && <Badge color="crimson">{errors.title.message}</Badge>}
+        <ErrorMessage>{errors.title?.message}</ErrorMessage>
         <TextField.Root
           placeholder="Title"
           radius="large"
           {...register('title', { required: true })}
         />
 
-        {errors.description && (
-          <Badge color="crimson">{errors.description.message}</Badge>
-        )}
+        <ErrorMessage>{errors.description?.message}</ErrorMessage>
         <Controller
           name="description"
           control={control}
