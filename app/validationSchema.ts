@@ -6,3 +6,5 @@ export const createIssueSchema = z.object({
     .string({ error: 'Description is required' })
     .min(1, 'Description is required'),
 });
+
+export type CreateIssueForm = z.infer<typeof createIssueSchema>;

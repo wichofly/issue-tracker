@@ -4,17 +4,14 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import 'easymde/dist/easymde.min.css';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import type { Options } from 'easymde';
 import axios from 'axios';
 import { Button, Callout, Spinner, TextField } from '@radix-ui/themes';
 
-import { createIssueSchema } from '@/app/validationSchema';
+import { CreateIssueForm, createIssueSchema } from '@/app/validationSchema';
 import ErrorMessage from '@/app/components/ErrorMessage';
-
-type CreateIssueForm = z.infer<typeof createIssueSchema>;
 
 // Dynamically import the SimpleMDE component to prevent SSR issues
 const SimpleMDE = dynamic(() => import('react-simplemde-editor'), {
