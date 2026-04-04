@@ -19,6 +19,7 @@
     "autoprefixer": "10.4.27",
     "axios": "^1.14.0",
     "classnames": "^2.5.1",
+    "delay": "^7.0.0",
     "easymde": "^2.20.0",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.1",
