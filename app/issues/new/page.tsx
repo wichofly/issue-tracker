@@ -1,17 +1,18 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import 'easymde/dist/easymde.min.css';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import type { Options } from 'easymde';
-import axios from 'axios';
 import { Button, Callout, Spinner, TextField } from '@radix-ui/themes';
+import axios from 'axios';
+import type { Options } from 'easymde';
+import 'easymde/dist/easymde.min.css';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
+import { useMemo, useState } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
-import { CreateIssueForm, createIssueSchema } from '@/app/validationSchema';
 import ErrorMessage from '@/app/components/ErrorMessage';
+import { CreateIssueForm, createIssueSchema } from '@/app/validationSchema';
+import delay from 'delay';
 
 // Dynamically import the SimpleMDE component to prevent SSR issues
 const SimpleMDE = dynamic(() => import('react-simplemde-editor'), {
@@ -50,6 +51,8 @@ const NewIssuePage = () => {
       );
     }
   };
+
+  // await delay(2000); // Simulate loading delay
 
   return (
     <div className="max-w-xl">
