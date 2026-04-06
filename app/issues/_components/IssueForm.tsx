@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { ErrorMessage } from '@/app/components';
-import { CreateIssueForm, createIssueSchema } from '@/app/validationSchema';
+import { CreateIssueForm, issueSchema } from '@/app/validationSchema';
 import { Issue } from '@prisma/client';
 
 // Dynamically import the SimpleMDE component to prevent SSR issues, not render on the server side, and ensure it only loads in the browser environment.
@@ -25,6 +25,8 @@ interface IssueFormProps {
 
 const IssueForm = ({ issue }: IssueFormProps) => {
   const router = useRouter();
+  const isEditing = Boolean(issue);
+  const issueId = issue?.id;
   const autofocusNoSpellcheckerOptions = useMemo(() => {
     return {
       autofocus: true,
@@ -40,18 +42,22 @@ const IssueForm = ({ issue }: IssueFormProps) => {
     control,
     formState: { errors },
   } = useForm<CreateIssueForm>({
-    resolver: zodResolver(createIssueSchema), // Integrate Zod validation with react-hook-form using the zodResolver
+    resolver: zodResolver(issueSchema), // Integrate Zod validation with react-hook-form using the zodResolver
   });
 
   const onSubmit: SubmitHandler<CreateIssueForm> = async (data) => {
     try {
       setIsLoading(true);
-      await axios.post('/api/issues', data);
+      if (isEditing && issueId)
+        await axios.patch(`/api/issues/${issueId}`, data);
+      else await axios.post('/api/issues', data);
       router.push('/issues');
     } catch (error) {
       setIsLoading(false);
       setError(
-        'An unexpected error occurred while creating the issue. Please try again.',
+        isEditing
+          ? 'An unexpected error occurred while updating the issue. Please try again.'
+          : 'An unexpected error occurred while creating the issue. Please try again.',
       );
     }
   };
@@ -91,7 +97,7 @@ const IssueForm = ({ issue }: IssueFormProps) => {
 
         <Button size="2" variant="soft" type="submit" disabled={isLoading}>
           {isLoading && <Spinner className="mr-2" />}
-          Submit New Issue
+          {isEditing ? 'Update Issue' : 'Submit New Issue'}
         </Button>
       </form>
     </div>
