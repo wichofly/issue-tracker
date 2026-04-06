@@ -52,6 +52,7 @@ const IssueForm = ({ issue }: IssueFormProps) => {
         await axios.patch(`/api/issues/${issueId}`, data);
       else await axios.post('/api/issues', data);
       router.push('/issues');
+      router.refresh();
     } catch (error) {
       setIsLoading(false);
       const errorMessage =
