@@ -5,7 +5,6 @@ import { Button, Callout, Spinner, TextField } from '@radix-ui/themes';
 import axios from 'axios';
 import type { Options } from 'easymde';
 import 'easymde/dist/easymde.min.css';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
@@ -13,11 +12,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { ErrorMessage } from '@/app/components';
 import { CreateIssueForm, issueSchema } from '@/app/validationSchema';
 import { Issue } from '@prisma/client';
-
-// Dynamically import the SimpleMDE component to prevent SSR issues, not render on the server side, and ensure it only loads in the browser environment.
-const SimpleMDE = dynamic(() => import('react-simplemde-editor'), {
-  ssr: false,
-});
+import SimpleMDE from 'react-simplemde-editor';
 
 interface IssueFormProps {
   issue?: Issue;
