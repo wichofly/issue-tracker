@@ -4,10 +4,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const PATCH = async (
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   try {
     const body = await request.json();
+    const { id } = await params;
+    const issueId = parseInt(id);
+
+    if (Number.isNaN(issueId))
+      return NextResponse.json({ error: 'Invalid issue ID' }, { status: 400 });
 
     const validation = issueSchema.safeParse(body);
 
@@ -15,7 +20,7 @@ export const PATCH = async (
       return NextResponse.json(validation.error.format(), { status: 400 });
 
     const issue = await prisma.issue.findUnique({
-      where: { id: parseInt(params.id) },
+      where: { id: issueId },
     });
 
     if (!issue)
@@ -24,9 +29,8 @@ export const PATCH = async (
     const updatedIssue = await prisma.issue.update({
       where: { id: issue.id },
       data: {
-        title: body.title,
-        description: body.description,
-        status: body.status,
+        title: validation.data.title,
+        description: validation.data.description,
       },
     });
 

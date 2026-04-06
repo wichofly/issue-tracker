@@ -54,10 +54,16 @@ const IssueForm = ({ issue }: IssueFormProps) => {
       router.push('/issues');
     } catch (error) {
       setIsLoading(false);
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.error
+          ? error.response.data.error
+          : null;
+
       setError(
-        isEditing
-          ? 'An unexpected error occurred while updating the issue. Please try again.'
-          : 'An unexpected error occurred while creating the issue. Please try again.',
+        errorMessage ||
+          (isEditing
+            ? 'An unexpected error occurred while updating the issue. Please try again.'
+            : 'An unexpected error occurred while creating the issue. Please try again.'),
       );
     }
   };
