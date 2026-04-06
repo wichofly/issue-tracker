@@ -14,7 +14,7 @@ import ErrorMessage from '@/app/components/ErrorMessage';
 import { CreateIssueForm, createIssueSchema } from '@/app/validationSchema';
 import delay from 'delay';
 
-// Dynamically import the SimpleMDE component to prevent SSR issues
+// Dynamically import the SimpleMDE component to prevent SSR issues, not render on the server side, and ensure it only loads in the browser environment. 
 const SimpleMDE = dynamic(() => import('react-simplemde-editor'), {
   ssr: false,
 });
