@@ -48,4 +48,6 @@ const IssuePage = async () => {
   );
 };
 
+export const dynamic = 'force-dynamic'; // Ensure the page is always rendered on the server
+
 export default IssuePage;
