@@ -13,7 +13,7 @@ const NavBar = () => {
   ];
 
   return (
-    <nav className="flex space-x-6 border-b border-b-zinc-300 mb-5 px-5 h-14 items-center">
+    <nav className="flex space-x-6 border-b border-b-zinc-300 mb-5 px-5 pl-35 h-14 items-center">
       <Link href="/">
         <GiSpottedBug className="text-2xl" />
       </Link>
