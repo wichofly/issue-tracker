@@ -10,7 +10,7 @@ import { useMemo, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { ErrorMessage } from '@/app/components';
-import { CreateIssueForm, issueSchema } from '@/app/validationSchema';
+import {  IssueData, issueSchema } from '@/app/validationSchema';
 import { Issue } from '@prisma/client';
 import SimpleMDE from 'react-simplemde-editor';
 
@@ -36,11 +36,11 @@ const IssueForm = ({ issue }: IssueFormProps) => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<CreateIssueForm>({
+  } = useForm<IssueData>({
     resolver: zodResolver(issueSchema), // Integrate Zod validation with react-hook-form using the zodResolver
   });
 
-  const onSubmit: SubmitHandler<CreateIssueForm> = async (data) => {
+  const onSubmit: SubmitHandler<IssueData> = async (data) => {
     try {
       setIsLoading(true);
       if (isEditing && issueId)
