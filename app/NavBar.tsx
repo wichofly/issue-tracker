@@ -60,6 +60,7 @@ const NavBar = () => {
                       fallback="?"
                       size="2"
                       radius="full"
+                      referrerPolicy="no-referrer"
                     />
                     {/* <span>{session.user!.name}</span> */}
                   </Flex>
