@@ -10,7 +10,7 @@ import { useMemo, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { ErrorMessage } from '@/app/components';
-import {  IssueData, issueSchema } from '@/app/validationSchema';
+import { IssueData, issueSchema } from '@/app/validationSchema';
 import { Issue } from '@prisma/client';
 import SimpleMDE from 'react-simplemde-editor';
 
