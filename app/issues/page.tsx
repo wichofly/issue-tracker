@@ -1,16 +1,31 @@
 import { IssueStatusBadge, Link } from '@/app/components';
+import { Status } from '@prisma/client';
 import prisma from '@/prisma/client';
 import { Table } from '@radix-ui/themes';
 import delay from 'delay';
 import IssueActions from './IssueActions';
 
-const IssuePage = async () => {
-  const issues = await prisma.issue.findMany();
+type IssuePageProps = {
+  searchParams: Promise<{ status?: Status }>;
+};
+
+const IssuePage = async ({ searchParams }: IssuePageProps) => {
+  const statuses = Object.values(Status);
+  const { status } = await searchParams;
+  const validStatus = statuses.includes(status as Status)
+    ? (status as Status)
+    : undefined;
+
+  const issues = await prisma.issue.findMany({
+    where: {
+      status: validStatus,
+    },
+  });
   await delay(2000); // Simulate loading delay
 
   return (
     <div>
-      <IssueActions />
+      <IssueActions status={validStatus ?? 'ALL'} />
 
       <Table.Root variant="surface">
         <Table.Header>
