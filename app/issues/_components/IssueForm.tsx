@@ -2,15 +2,16 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Callout, Spinner, TextField } from '@radix-ui/themes';
+import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import type { Options } from 'easymde';
 import 'easymde/dist/easymde.min.css';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 import { ErrorMessage } from '@/app/components';
-import {  IssueData, issueSchema } from '@/app/validationSchema';
+import { IssueData, issueSchema } from '@/app/validationSchema';
 import { Issue } from '@prisma/client';
 import SimpleMDE from 'react-simplemde-editor';
 
@@ -28,8 +29,14 @@ const IssueForm = ({ issue }: IssueFormProps) => {
       spellChecker: false,
     } as Options;
   }, []);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: async (data: IssueData) => {
+      if (isEditing && issueId)
+        return axios.patch(`/api/issues/${issueId}`, data);
+      return axios.post('/api/issues', data);
+    },
+  });
 
   const {
     register,
@@ -40,27 +47,25 @@ const IssueForm = ({ issue }: IssueFormProps) => {
     resolver: zodResolver(issueSchema), // Integrate Zod validation with react-hook-form using the zodResolver
   });
 
+  const submitErrorMessage = (() => {
+    const error = mutation.error;
+    if (!error) return null;
+
+    if (axios.isAxiosError(error) && error.response?.data?.error)
+      return error.response.data.error as string;
+
+    return isEditing
+      ? 'An unexpected error occurred while updating the issue. Please try again.'
+      : 'An unexpected error occurred while creating the issue. Please try again.';
+  })();
+
   const onSubmit: SubmitHandler<IssueData> = async (data) => {
     try {
-      setIsLoading(true);
-      if (isEditing && issueId)
-        await axios.patch(`/api/issues/${issueId}`, data);
-      else await axios.post('/api/issues', data);
+      await mutation.mutateAsync(data);
       router.push('/issues');
       router.refresh();
-    } catch (error) {
-      setIsLoading(false);
-      const errorMessage =
-        axios.isAxiosError(error) && error.response?.data?.error
-          ? error.response.data.error
-          : null;
-
-      setError(
-        errorMessage ||
-          (isEditing
-            ? 'An unexpected error occurred while updating the issue. Please try again.'
-            : 'An unexpected error occurred while creating the issue. Please try again.'),
-      );
+    } catch {
+      // Error is handled by mutation.error and rendered in the callout.
     }
   };
 
@@ -68,9 +73,9 @@ const IssueForm = ({ issue }: IssueFormProps) => {
 
   return (
     <div className="max-w-xl">
-      {error && (
+      {submitErrorMessage && (
         <Callout.Root color="red" className="mb-5">
-          <Callout.Text>{error}</Callout.Text>
+          <Callout.Text>{submitErrorMessage}</Callout.Text>
         </Callout.Root>
       )}
       <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
@@ -97,8 +102,13 @@ const IssueForm = ({ issue }: IssueFormProps) => {
           )}
         />
 
-        <Button size="2" variant="soft" type="submit" disabled={isLoading}>
-          {isLoading && <Spinner className="mr-2" />}
+        <Button
+          size="2"
+          variant="soft"
+          type="submit"
+          disabled={mutation.isPending}
+        >
+          {mutation.isPending && <Spinner className="mr-2" />}
           {isEditing ? 'Update Issue' : 'Submit New Issue'}
         </Button>
       </form>

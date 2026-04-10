@@ -1,4 +1,4 @@
-import { issueSchema } from '@/app/validationSchema';
+import { patchIssueSchema } from '@/app/validationSchema';
 import prisma from '@/prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
@@ -20,10 +20,24 @@ export const PATCH = async (
     if (Number.isNaN(issueId))
       return NextResponse.json({ error: 'Invalid issue ID' }, { status: 400 });
 
-    const validation = issueSchema.safeParse(body);
+    const validation = patchIssueSchema.safeParse(body);
 
     if (!validation.success)
       return NextResponse.json(validation.error.format(), { status: 400 });
+
+    const { assignedToUserId, title, description } = validation.data;
+
+    if (assignedToUserId) {
+      const user = await prisma.user.findUnique({
+        where: { id: assignedToUserId },
+      });
+      if (!user) {
+        return NextResponse.json(
+          { error: 'Assigned user not found' },
+          { status: 400 },
+        );
+      }
+    }
 
     const issue = await prisma.issue.findUnique({
       where: { id: issueId },
@@ -35,8 +49,9 @@ export const PATCH = async (
     const updatedIssue = await prisma.issue.update({
       where: { id: issue.id },
       data: {
-        title: validation.data.title,
-        description: validation.data.description,
+        title,
+        description,
+        assignedToUserId,
       },
     });
 
@@ -57,7 +72,7 @@ export const DELETE = async (
     const session = await getServerSession(authOptions);
     if (!session)
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    
+
     const { id } = await params;
     const issueId = parseInt(id);
 

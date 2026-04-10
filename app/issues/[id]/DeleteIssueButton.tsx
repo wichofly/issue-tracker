@@ -1,25 +1,23 @@
 'use client';
 
 import { AlertDialog, Button, Flex, Spinner } from '@radix-ui/themes';
+import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 
 const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
   const router = useRouter();
-  const [error, setError] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDelete = async () => {
-    try {
-      setIsDeleting(true);
-      await axios.delete(`/api/issues/${issueId}`);
+  const deleteIssueMutation = useMutation({
+    mutationFn: async () => axios.delete(`/api/issues/${issueId}`),
+    onSuccess: () => {
       router.push('/issues');
       router.refresh();
-    } catch (error) {
-      setIsDeleting(false);
-      setError(true);
-    }
+    },
+  });
+
+  const handleDelete = () => {
+    deleteIssueMutation.mutate();
   };
 
   return (
@@ -28,11 +26,13 @@ const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
         <AlertDialog.Trigger>
           <Button
             color="red"
-            disabled={isDeleting}
-            style={{ cursor: isDeleting ? 'not-allowed' : 'pointer' }}
+            disabled={deleteIssueMutation.isPending}
+            style={{
+              cursor: deleteIssueMutation.isPending ? 'not-allowed' : 'pointer',
+            }}
           >
             Delete Issue
-            {isDeleting && <Spinner />}
+            {deleteIssueMutation.isPending && <Spinner />}
           </Button>
         </AlertDialog.Trigger>
         <AlertDialog.Content>
@@ -53,6 +53,7 @@ const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
                 variant="solid"
                 color="red"
                 onClick={handleDelete}
+                disabled={deleteIssueMutation.isPending}
                 style={{ cursor: 'pointer' }}
               >
                 Delete
@@ -62,7 +63,12 @@ const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
         </AlertDialog.Content>
       </AlertDialog.Root>
 
-      <AlertDialog.Root open={error} onOpenChange={setError}>
+      <AlertDialog.Root
+        open={deleteIssueMutation.isError}
+        onOpenChange={(open) => {
+          if (!open) deleteIssueMutation.reset();
+        }}
+      >
         <AlertDialog.Content>
           <AlertDialog.Title>Error</AlertDialog.Title>
           <AlertDialog.Description>
@@ -73,7 +79,7 @@ const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
             color="gray"
             variant="soft"
             mt="2"
-            onClick={() => setError(false)}
+            onClick={() => deleteIssueMutation.reset()}
           >
             OK
           </Button>

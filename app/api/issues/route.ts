@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session)
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-  
+
   const body = await request.json();
 
   const validation = issueSchema.safeParse(body);
@@ -22,3 +22,13 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json(newIssue, { status: 201 });
 }
+
+export const GET = async (request: NextRequest) => {
+  const issues = await prisma.issue.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return NextResponse.json(issues);
+};
