@@ -12,7 +12,7 @@ const statuses: { label: string; value?: Status }[] = [
 ];
 
 type IssueStatusFilterProps = {
-  status: Status | 'ALL';
+  status?: Status;
 };
 
 const IssueStatusFilter = ({ status }: IssueStatusFilterProps) => {

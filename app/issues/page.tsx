@@ -45,7 +45,7 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
 
   return (
     <div>
-      <IssueActions status={validStatus ?? 'ALL'} />
+      <IssueActions status={validStatus} />
 
       <Table.Root variant="surface">
         <Table.Header>

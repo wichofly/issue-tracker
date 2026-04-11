@@ -4,7 +4,7 @@ import Link from 'next/link';
 import IssueStatusFilter from './IssueStatusFilter';
 
 type Props = {
-  status: Status | 'ALL';
+  status?: Status;
 };
 
 const IssueActions = ({ status }: Props) => {
