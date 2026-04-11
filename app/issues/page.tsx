@@ -1,11 +1,11 @@
 import { IssueStatusBadge, Link } from '@/app/components';
-import { Issue, Status } from '@prisma/client';
 import prisma from '@/prisma/client';
+import { Issue, Status } from '@prisma/client';
+import { ArrowUpIcon } from '@radix-ui/react-icons';
 import { Table } from '@radix-ui/themes';
 import delay from 'delay';
-import IssueActions from './IssueActions';
 import NextLink from 'next/link';
-import { ArrowUpIcon } from '@radix-ui/react-icons';
+import IssueActions from './IssueActions';
 
 type IssuePageProps = {
   searchParams: Promise<{ status?: Status; orderBy: keyof Issue }>;
@@ -20,14 +20,18 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
 
   const statuses = Object.values(Status);
   const { status, orderBy } = await searchParams;
+
+  // Validate status parameter against allowed values, default to undefined (show all) if invalid
   const validStatus = statuses.includes(status as Status)
     ? (status as Status)
     : undefined;
 
+  // Validate orderBy parameter against allowed columns, default to 'createdAt' if invalid
   const validOrderBy = columns.map((column) => column.value).includes(orderBy)
     ? orderBy
     : 'createdAt';
 
+  // Fetch issues from the database based on the validated status and orderBy parameters
   const issues = await prisma.issue.findMany({
     where: {
       status: validStatus,
@@ -36,6 +40,7 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
       [validOrderBy]: 'desc',
     },
   });
+
   await delay(2000); // Simulate loading delay
 
   return (
