@@ -27,6 +27,7 @@ const IssueStatusFilter = ({ status }: IssueStatusFilterProps) => {
 
         if (status === 'ALL') params.delete('status');
         else params.set('status', status);
+        params.delete('page');
 
         const query = params.size ? `?${params.toString()}` : '';
         router.push(`/issues${query}`);

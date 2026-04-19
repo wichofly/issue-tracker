@@ -6,6 +6,7 @@ import { Table } from '@radix-ui/themes';
 import delay from 'delay';
 import NextLink from 'next/link';
 import IssueActions from './IssueActions';
+import Pagination from '../components/Pagination';
 
 type IssuePageProps = {
   searchParams: Promise<{
@@ -35,25 +36,26 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
     ? orderBy
     : 'createdAt';
 
-  const page = parseInt((await searchParams).page) || 1;
+  const page = Math.max(1, parseInt((await searchParams).page) || 1);
   const pageSize = 10;
+
+  const where = { status: validStatus };
+
+  const issueCount = await prisma.issue.count({
+    where,
+  });
+
+  const pageCount = Math.max(1, Math.ceil(issueCount / pageSize));
+  const currentPage = Math.min(page, pageCount);
 
   // Fetch issues from the database based on the validated status and orderBy parameters
   const issues = await prisma.issue.findMany({
-    where: {
-      status: validStatus,
-    },
+    where,
     orderBy: {
       [validOrderBy]: 'desc',
     },
-    skip: (page - 1) * pageSize,
+    skip: (currentPage - 1) * pageSize,
     take: pageSize,
-  });
-
-  const issueCount = await prisma.issue.count({
-    where: {
-      status: status,
-    },
   });
 
   await delay(2000); // Simulate loading delay
@@ -62,7 +64,7 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
     <div>
       <IssueActions status={validStatus} />
 
-      <Table.Root variant="surface">
+      <Table.Root variant="surface" mb="4">
         <Table.Header>
           <Table.Row>
             {columns.map((column) => (
@@ -104,6 +106,12 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
           ))}
         </Table.Body>
       </Table.Root>
+
+      <Pagination
+        itemCount={issueCount}
+        pageSize={pageSize}
+        currentPage={currentPage}
+      />
     </div>
   );
 };
