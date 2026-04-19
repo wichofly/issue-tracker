@@ -8,7 +8,11 @@ import NextLink from 'next/link';
 import IssueActions from './IssueActions';
 
 type IssuePageProps = {
-  searchParams: Promise<{ status?: Status; orderBy: keyof Issue }>;
+  searchParams: Promise<{
+    status?: Status;
+    orderBy: keyof Issue;
+    page: string;
+  }>;
 };
 
 const IssuePage = async ({ searchParams }: IssuePageProps) => {
@@ -31,6 +35,9 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
     ? orderBy
     : 'createdAt';
 
+  const page = parseInt((await searchParams).page) || 1;
+  const pageSize = 10;
+
   // Fetch issues from the database based on the validated status and orderBy parameters
   const issues = await prisma.issue.findMany({
     where: {
@@ -38,6 +45,14 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
     },
     orderBy: {
       [validOrderBy]: 'desc',
+    },
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+  });
+
+  const issueCount = await prisma.issue.count({
+    where: {
+      status: status,
     },
   });
 
