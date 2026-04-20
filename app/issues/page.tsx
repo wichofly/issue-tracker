@@ -1,42 +1,22 @@
-import { IssueStatusBadge, Link } from '@/app/components';
 import prisma from '@/prisma/client';
 import { Issue, Status } from '@prisma/client';
-import { ArrowUpIcon } from '@radix-ui/react-icons';
-import { Table } from '@radix-ui/themes';
 import delay from 'delay';
-import NextLink from 'next/link';
-import IssueActions from './IssueActions';
 import Pagination from '../components/Pagination';
+import IssueActions from './IssueActions';
+import IssueTable, { columnNames, IssueQuery } from './IssueTable';
 
 type IssuePageProps = {
-  searchParams: Promise<{
-    status?: Status;
-    orderBy: keyof Issue;
-    page: string;
-  }>;
+  searchParams: Promise<IssueQuery['searchParams']>;
 };
 
 const IssuePage = async ({ searchParams }: IssuePageProps) => {
-  const columns: { label: string; value: keyof Issue; className?: string }[] = [
-    { label: 'Issue', value: 'title' },
-    { label: 'Status', value: 'status', className: 'hidden md:table-cell' },
-    { label: 'Created', value: 'createdAt', className: 'hidden md:table-cell' },
-  ];
+  const parsedSearchParams = await searchParams;
+  const { status, orderBy, page: pageParam } = parsedSearchParams;
 
-  const statuses = Object.values(Status);
-  const { status, orderBy } = await searchParams;
-
-  // Validate status parameter against allowed values, default to undefined (show all) if invalid
-  const validStatus = statuses.includes(status as Status)
-    ? (status as Status)
-    : undefined;
-
-  // Validate orderBy parameter against allowed columns, default to 'createdAt' if invalid
-  const validOrderBy = columns.map((column) => column.value).includes(orderBy)
-    ? orderBy
-    : 'createdAt';
-
-  const page = Math.max(1, parseInt((await searchParams).page) || 1);
+  const validStatus = Object.values(Status).find((value) => value === status);
+  const validOrderBy: keyof Issue =
+    columnNames.find((columnName) => columnName === orderBy) ?? 'createdAt';
+  const page = Math.max(1, parseInt(pageParam || '1', 10));
   const pageSize = 10;
 
   const where = { status: validStatus };
@@ -64,48 +44,7 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
     <div>
       <IssueActions status={validStatus} />
 
-      <Table.Root variant="surface" mb="4">
-        <Table.Header>
-          <Table.Row>
-            {columns.map((column) => (
-              <Table.ColumnHeaderCell
-                key={column.value}
-                className={column.className}
-              >
-                <NextLink
-                  href={{
-                    query: { status: validStatus, orderBy: column.value },
-                  }}
-                >
-                  {column.label}
-                </NextLink>
-                {column.value === validOrderBy && (
-                  <ArrowUpIcon className="inline" />
-                )}
-              </Table.ColumnHeaderCell>
-            ))}
-          </Table.Row>
-        </Table.Header>
-
-        <Table.Body>
-          {issues.map((issue) => (
-            <Table.Row key={issue.id}>
-              <Table.Cell>
-                <Link href={`/issues/${issue.id}`}>{issue.title}</Link>
-                <div className="block md:hidden">
-                  <IssueStatusBadge status={issue.status} />
-                </div>
-              </Table.Cell>
-              <Table.Cell className="hidden md:table-cell">
-                <IssueStatusBadge status={issue.status} />
-              </Table.Cell>
-              <Table.Cell className="hidden md:table-cell">
-                {issue.createdAt.toDateString()}
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table.Root>
+      <IssueTable searchParams={parsedSearchParams} issues={issues} />
 
       <Pagination
         itemCount={issueCount}
