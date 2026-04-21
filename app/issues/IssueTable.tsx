@@ -5,15 +5,13 @@ import NextLink from 'next/link';
 import { IssueStatusBadge } from '../components';
 
 export type IssueQuery = {
-  searchParams: {
-    status?: string;
-    orderBy?: string;
-    page?: string;
-  };
+  status: Status;
+  orderBy: keyof Issue;
+  page: string;
 };
 
 type IssueTableProps = {
-  searchParams: IssueQuery['searchParams'];
+  searchParams: IssueQuery;
   issues: Issue[];
 };
 
@@ -27,7 +25,7 @@ export const columnNames = columns.map((column) => column.value);
 
 const IssueTable = ({ searchParams, issues }: IssueTableProps) => {
   const validStatus = Object.values(Status).find(
-    (value) => value === searchParams.status
+    (value) => value === searchParams.status,
   );
   const validOrderBy: keyof Issue =
     columnNames.find((columnName) => columnName === searchParams.orderBy) ??

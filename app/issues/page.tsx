@@ -6,7 +6,7 @@ import IssueActions from './IssueActions';
 import IssueTable, { columnNames, IssueQuery } from './IssueTable';
 
 type IssuePageProps = {
-  searchParams: Promise<IssueQuery['searchParams']>;
+  searchParams: Promise<IssueQuery>;
 };
 
 const IssuePage = async ({ searchParams }: IssuePageProps) => {
@@ -42,7 +42,7 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
 
   return (
     <div>
-      <IssueActions status={validStatus} />
+      <IssueActions />
 
       <IssueTable searchParams={parsedSearchParams} issues={issues} />
 
