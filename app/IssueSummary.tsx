@@ -3,16 +3,22 @@ import { Card, Flex, Text } from '@radix-ui/themes';
 import Link from 'next/link';
 
 type IssueSummaryProps = {
-  open: number;
-  inProgress: number;
-  closed: number;
+  issueCounts: {
+    open: number;
+    inProgress: number;
+    closed: number;
+  };
 };
 
-const IssueSummary = ({ open, inProgress, closed }: IssueSummaryProps) => {
+const IssueSummary = ({ issueCounts }: IssueSummaryProps) => {
   const containers: { label: string; value: number; status: Status }[] = [
-    { label: 'Open', value: open, status: 'OPEN' },
-    { label: 'In Progress', value: inProgress, status: 'IN_PROGRESS' },
-    { label: 'Closed', value: closed, status: 'CLOSED' },
+    { label: 'Open', value: issueCounts.open, status: 'OPEN' },
+    {
+      label: 'In Progress',
+      value: issueCounts.inProgress,
+      status: 'IN_PROGRESS',
+    },
+    { label: 'Closed', value: issueCounts.closed, status: 'CLOSED' },
   ];
 
   return (
