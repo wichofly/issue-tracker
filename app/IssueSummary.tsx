@@ -16,7 +16,7 @@ const IssueSummary = ({ open, inProgress, closed }: IssueSummaryProps) => {
   ];
 
   return (
-    <Flex gap="4" mt="5">
+    <Flex gap="4">
       {containers.map((container) => (
         <Card key={container.value}>
           <Flex direction="column" gap="1">
