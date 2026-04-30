@@ -27,53 +27,64 @@ const IssueTable = ({ searchParams, issues }: IssueTableProps) => {
   const validStatus = Object.values(Status).find(
     (value) => value === searchParams.status,
   );
+  const hasIssues = issues.length > 0;
   const validOrderBy: keyof Issue =
     columnNames.find((columnName) => columnName === searchParams.orderBy) ??
     'createdAt';
 
   return (
     <Table.Root variant="surface" mb="4">
-      <Table.Header>
-        <Table.Row>
-          {columns.map((column) => (
-            <Table.ColumnHeaderCell
-              key={column.value}
-              className={column.className}
-            >
-              <NextLink
-                href={{
-                  query: validStatus
-                    ? { status: validStatus, orderBy: column.value }
-                    : { orderBy: column.value },
-                }}
+      {hasIssues && (
+        <Table.Header>
+          <Table.Row>
+            {columns.map((column) => (
+              <Table.ColumnHeaderCell
+                key={column.value}
+                className={column.className}
               >
-                {column.label}
-              </NextLink>
-              {column.value === validOrderBy && (
-                <ArrowUpIcon className="inline" />
-              )}
-            </Table.ColumnHeaderCell>
-          ))}
-        </Table.Row>
-      </Table.Header>
+                <NextLink
+                  href={{
+                    query: validStatus
+                      ? { status: validStatus, orderBy: column.value }
+                      : { orderBy: column.value },
+                  }}
+                >
+                  {column.label}
+                </NextLink>
+                {column.value === validOrderBy && (
+                  <ArrowUpIcon className="inline" />
+                )}
+              </Table.ColumnHeaderCell>
+            ))}
+          </Table.Row>
+        </Table.Header>
+      )}
 
       <Table.Body>
-        {issues.map((issue) => (
-          <Table.Row key={issue.id}>
-            <Table.Cell>
-              <Link href={`/issues/${issue.id}`}>{issue.title}</Link>
-              <div className="block md:hidden">
+        {hasIssues ? (
+          issues.map((issue) => (
+            <Table.Row key={issue.id}>
+              <Table.Cell>
+                <Link href={`/issues/${issue.id}`}>{issue.title}</Link>
+                <div className="block md:hidden">
+                  <IssueStatusBadge status={issue.status} />
+                </div>
+              </Table.Cell>
+              <Table.Cell className="hidden md:table-cell">
                 <IssueStatusBadge status={issue.status} />
-              </div>
-            </Table.Cell>
-            <Table.Cell className="hidden md:table-cell">
-              <IssueStatusBadge status={issue.status} />
-            </Table.Cell>
-            <Table.Cell className="hidden md:table-cell">
-              {issue.createdAt.toDateString()}
+              </Table.Cell>
+              <Table.Cell className="hidden md:table-cell">
+                {issue.createdAt.toDateString()}
+              </Table.Cell>
+            </Table.Row>
+          ))
+        ) : (
+          <Table.Row>
+            <Table.Cell colSpan={3} className="py-10 text-center text-zinc-500">
+              No issues found.
             </Table.Cell>
           </Table.Row>
-        ))}
+        )}
       </Table.Body>
     </Table.Root>
   );
