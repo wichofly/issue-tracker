@@ -1,6 +1,7 @@
 import prisma from '@/prisma/client';
 import { Issue, Status } from '@prisma/client';
 import delay from 'delay';
+import { Metadata } from 'next';
 import Pagination from '../components/Pagination';
 import IssueActions from './IssueActions';
 import IssueTable, { columnNames, IssueQuery } from './IssueTable';
@@ -56,5 +57,11 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
 };
 
 export const dynamic = 'force-dynamic'; // Ensure the page is always rendered on the server
+
+export const metadata: Metadata = {
+  title: 'Issue Tracker List',
+  description:
+    'View and manage issues with ease using our comprehensive issue tracker dashboard.',
+};
 
 export default IssuePage;
