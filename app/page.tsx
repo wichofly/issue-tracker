@@ -31,7 +31,7 @@ export const Home = async () => {
 export const metadata: Metadata = {
   title: 'Issue Tracker Dashboard',
   description: 'A dashboard to track and manage issues effectively.',
-}
+};
 
 export const dynamic = 'force-dynamic';
 
