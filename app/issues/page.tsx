@@ -2,6 +2,7 @@ import prisma from '@/prisma/client';
 import { Issue, Status } from '@prisma/client';
 import delay from 'delay';
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import Pagination from '../components/Pagination';
 import IssueActions from './IssueActions';
 import IssueTable, { columnNames, IssueQuery } from './IssueTable';
@@ -47,11 +48,13 @@ const IssuePage = async ({ searchParams }: IssuePageProps) => {
 
       <IssueTable searchParams={parsedSearchParams} issues={issues} />
 
-      <Pagination
-        itemCount={issueCount}
-        pageSize={pageSize}
-        currentPage={currentPage}
-      />
+      <Suspense>
+        <Pagination
+          itemCount={issueCount}
+          pageSize={pageSize}
+          currentPage={currentPage}
+        />
+      </Suspense>
     </div>
   );
 };

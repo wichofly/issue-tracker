@@ -13,6 +13,7 @@ import classNames from 'classnames';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Suspense } from 'react';
 import { GiSpottedBug } from 'react-icons/gi';
 // import { Spinner } from '@/app/components';
 
@@ -27,7 +28,9 @@ const NavBar = () => {
             </Link>
             <NavLinks />
           </Flex>
-          <AuthStatus />
+          <Suspense fallback={<Spinner />}>
+            <AuthStatus />
+          </Suspense>
         </Flex>
       </Container>
     </nav>
