@@ -33,4 +33,6 @@ export const metadata: Metadata = {
   description: 'A dashboard to track and manage issues effectively.',
 }
 
+export const dynamic = 'force-dynamic';
+
 export default Home;
