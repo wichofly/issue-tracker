@@ -9,6 +9,7 @@ import AssigneeSelect from './AssigneeSelect';
 import DeleteIssueButton from './DeleteIssueButton';
 import EditIssueButton from './EditIssueButton';
 import IssueDetails from './IssueDetails';
+import StatusSelect from './StatusSelect';
 
 interface IssueDetailPageProps {
   params: Promise<{ id: string }>;
@@ -39,6 +40,7 @@ const IssueDetailPage = async ({ params }: IssueDetailPageProps) => {
       {session && (
         <Box>
           <div className="flex flex-col gap-4">
+            <StatusSelect issue={issue} />
             <AssigneeSelect issue={issue} />
             <EditIssueButton issueId={issue.id} />
             <DeleteIssueButton issueId={issue.id} />

@@ -1,5 +1,6 @@
 import { patchIssueSchema } from '@/app/validationSchema';
 import prisma from '@/prisma/client';
+import { Status } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 import authOptions from '../../auth/authOptions';
@@ -25,7 +26,7 @@ export const PATCH = async (
     if (!validation.success)
       return NextResponse.json(validation.error.format(), { status: 400 });
 
-    const { assignedToUserId, title, description } = validation.data;
+    const { assignedToUserId, title, description, status } = validation.data;
 
     if (assignedToUserId) {
       const user = await prisma.user.findUnique({
@@ -46,12 +47,18 @@ export const PATCH = async (
     if (!issue)
       return NextResponse.json({ error: 'Issue not found' }, { status: 404 });
 
+    const statusToUpdate =
+      assignedToUserId !== undefined && assignedToUserId !== null
+        ? (status ?? Status.IN_PROGRESS)
+        : status;
+
     const updatedIssue = await prisma.issue.update({
       where: { id: issue.id },
       data: {
         title,
         description,
         assignedToUserId,
+        status: statusToUpdate,
       },
     });
 
